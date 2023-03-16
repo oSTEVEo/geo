@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Our datasets, you can find it on https://www.kaggle.com/datasets/puneet6060/intel-image-classification
+seg_train/
+seg_test/
+seg_pred/
