@@ -1,34 +1,72 @@
-def create_dataset(paths):
-    import numpy as np
-    from PIL import Image
-    import os
-    import torch
-    from torch import tensor, randn
-    torch.set_default_dtype(torch.float64)
-    device = torch.device("cuda")
-    
-    def to_categorical(y, num_classes):
-        return tensor(np.eye(num_classes)[y])
-    
-    
-    xdata = [] 
-    ydata = []
-    dataset = []
-    for i in range(len(paths)):     # Бежим по массиву каталогов 
-        listdir = os.listdir(paths[i]) 
-        for j in range(len(listdir)):
-            listdir[j] = [np.asarray(Image.open(paths[i] + "/" + listdir[j]).convert('RGB')), i]    # Здесь конвертируются файлы и соединяются с номером их типа
-        dataset += listdir
-    
-    np.random.shuffle(dataset)      # Перемешиваем, разделяем
-    for item in dataset:
-        xdata = item[0]
-        ydata = item[1]
-    ydata = to_categorical(ydata, 10)   # np.eye()
-    
-    return tensor(xdata).to(device), tensor(ydata).to(device)     # возвращаем 2 тензора
+import numpy as np
+from matplotlib import pylab as plt
+from tqdm import tqdm
+import torchvision.datasets as dsets
+import torchvision.transforms as transforms
+import torch.nn.init
+import torch
+from torch import optim
+from torch.autograd import Variable
+import torch.nn.functional as F
 
+import mkdataset
+import neironetwork
 
+device = torch.device("cuda")
 
+dataset = mkdataset.create_dataset(["seg_train/sea", "seg_train/buildings",
+               "seg_train/street", "seg_train/forest", "seg_train/mountain"])
 
-print(1)
+print(dataset.shape)
+
+n_epochs = 50
+eta = 0.001
+model = neironetwork.AwesomeModel().to(device)
+optimizer = optim.SGD(model.parameters(), lr=eta)
+
+batch_size = 64
+
+for epoch in range(n_epochs):
+    correct_answers_train = 0
+    correct_answers_test = 0
+
+    # shuffle по x_train, y_train
+    # last batch
+
+    for batch_idx in tqdm(range(x_train.shape[0] // batch_size)):
+        x_i = x_train[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
+            .permute(0, 3, 1, 2)\
+            .type(torch.float64).to(device)
+        y_i = y_train[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
+            .reshape((batch_size, 10))\
+            .type(torch.float64).to(device)
+
+        y_hat = model(x_i)
+
+        loss = F.mse_loss(y_hat, y_i).to(device)
+        for a, b in zip(y_hat.argmax(dim=1), y_i.argmax(dim=1)):
+            correct_answers_train += int(a == b)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    for batch_idx in range(x_test.shape[0] // batch_size):
+        x_i = x_test[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
+            .permute(0, 3, 1, 2)\
+            .type(torch.float64).to(device)
+        y_i = y_test[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
+            .reshape((batch_size, 10))\
+            .type(torch.float64).to(device)
+
+        with torch.no_grad():
+            y_hat = model(x_i)
+
+        for a, b in zip(y_hat.argmax(dim=1), y_i.argmax(dim=1)):
+            correct_answers_test += int(a == b)
+
+    train_acc = correct_answers_train / x_train.shape[0]
+    test_acc = correct_answers_test / x_test.shape[0]
+
+    print(
+        f'Epoch: {epoch + 1}, Train acc: {train_acc:.5f}, Test acc: {test_acc:.5f}')
