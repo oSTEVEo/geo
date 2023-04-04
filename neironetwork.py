@@ -89,4 +89,5 @@ class AwesomeModel(torch.nn.Module):
         x = self.relu2(self.pool2(self.conv2(x)))
         x = self.relu3(self.pool3(self.conv3(x)))
         x = self.relu4(self.pool4(self.conv4(x)))
+        print(x.shape)
         return self.linear(x.reshape(batch_size, -1))
