@@ -14,10 +14,10 @@ import neironetwork
 
 device = torch.device("cuda")
 
-x_train, y_train, x_test, y_test = mkdataset.create_dataset(["seg_train/sea", "seg_train/buildings",
+x_train, y_train = mkdataset.create_dataset(["seg_train/sea", "seg_train/buildings",
                "seg_train/street", "seg_train/forest", "seg_train/mountain"])
-
-print(dataset.shape)
+x_test, y_test = mkdataset.create_dataset(["seg_test/sea", "seg_test/buildings",
+               "seg_test/street", "seg_test/forest", "seg_test/mountain"])
 
 n_epochs = 50
 eta = 0.001

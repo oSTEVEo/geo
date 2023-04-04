@@ -19,9 +19,7 @@ def Get_Filtered_Image(path):
     return sobel
 
 
-def create_dataset(paths, raito=0.70):
-    # raito - процентное отношение, по умолчанию 70% на тренировку
-    
+def create_dataset(paths):
     torch.set_default_dtype(torch.float64)
     device = torch.device("cuda")
     
@@ -29,38 +27,25 @@ def create_dataset(paths, raito=0.70):
         return tensor(np.eye(num_classes)[y]).to(device)
     
     dataset = []
-    for i in range(len(paths)):         # Бежим по массиву каталогов 
+    for i in range(len(paths)):        # Бежим по массиву каталогов 
         listdir = os.listdir(paths[i]) 
         for j in range(len(listdir)):
-            # Здесь конвертируются файлы и соединяются с номером их типа
-            listdir[j] = [Get_Filtered_Image(paths[i]+'/'+listdir[j]), i]
+            listdir[j] = [Get_Filtered_Image(paths[i]+'/'+listdir[j]), i]    # Здесь конвертируются файлы и соединяются с номером их типа
         dataset += listdir
     
-    np.random.shuffle(dataset)          # Перемешиваем
-    border = int(len(dataset) * raito)
-    train_dataset = dataset[:border]    # Разделяем
-    test_dataset = dataset[border:]
+    xdata = [0] * len(dataset) 
+    ydata = [0] * len(dataset)
     
-    x_train = []
-    x_test = []
-    y_train = []
-    y_test = []
-    # Разбиваем x и y по отдельным массивам
-    for item in train_dataset:          
-        x_train += item[0]
-        y_train += item[1] 
+    np.random.shuffle(dataset)         # Перемешиваем, разделяем x и y
+    for i in range(len(dataset)):
+        xdata[i] = dataset[i][0]
+        ydata[i] = dataset[i][1]
     
-    for item in test_dataset:
-        x_test += item[0] 
-        y_test += item[1]
-         
-    # np.eye()
-    y_train = to_categorical(y_train, 5)
-    y_test  = to_categorical(y_test,  5)
+    xdata = tensor(xdata).to(device)
+    ydata = to_categorical(ydata, 5)   # np.eye()
     
-    # Переводим массивы с x в тензоры
-    x_train = tensor(x_train).to(device)
-    x_test  = tensor(x_test ).to(device)
+    print("Pats: ", paths)
+    print("xSize: ", xdata.shape)
+    print("ySize: ", ydata.shape)
     
-    # возвращаем 4 тензора: 2 тензора с кртинками и 2 тензора с ответами
-    return tensor(xdata).to(device),
+    return xdata, ydata                # возвращаем 2 тензора
