@@ -132,3 +132,6 @@ dmypy.json
 seg_train/
 seg_test/
 seg_pred/
+
+# binary data, will be generated in first launch
+bindata/* 
