@@ -16,9 +16,11 @@ device = torch.device("cuda")
 
 x_train, y_train, x_test, y_test = mkdataset.init_dataset()
 
+print(x_train.shape)
+
 n_epochs = 50
 eta = 0.001
-model = neironetwork.AwesomeModel().to(device)
+model = neironetwork.MyModel().to(device)
 optimizer = optim.SGD(model.parameters(), lr=eta)
 
 batch_size = 64
@@ -30,31 +32,24 @@ for epoch in range(n_epochs):
     # shuffle по x_train, y_train
     # last batch
 
-    for batch_idx in tqdm(range(x_train.shape[0] // batch_size)):
-        x_i = x_train[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
-            .permute(0, 3, 1, 2)\
-            .type(torch.float64).to(device)
-        y_i = y_train[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
-            .reshape((batch_size, 10))\
-            .type(torch.float64).to(device)
+    optimizer.zero_grad()
+    for idx in tqdm(range(x_train.shape[0])):
+        x_i = x_train[idx].reshape(1, 150, 150)
+        y_i = y_train[idx]
 
         y_hat = model(x_i)
 
         loss = F.mse_loss(y_hat, y_i).to(device)
         for a, b in zip(y_hat.argmax(dim=1), y_i.argmax(dim=1)):
             correct_answers_train += int(a == b)
-
-        optimizer.zero_grad()
+        
         loss.backward()
-        optimizer.step()
-
-    for batch_idx in range(x_test.shape[0] // batch_size):
-        x_i = x_test[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
-            .permute(0, 3, 1, 2)\
-            .type(torch.float64).to(device)
-        y_i = y_test[batch_size * batch_idx: batch_size * (batch_idx + 1)]\
-            .reshape((batch_size, 10))\
-            .type(torch.float64).to(device)
+        
+    optimizer.step()
+    
+    for batch_idx in range(x_test.shape[0]):
+        x_i = x_test[idx]
+        y_i = y_test[idx]
 
         with torch.no_grad():
             y_hat = model(x_i)

@@ -9,14 +9,10 @@ torch.set_default_dtype(torch.float64)
 device = torch.device("cuda")
 
 def init_dataset():
-    if (os.path.exists("bindata/xdata.bin")):
-        return load_dataset()
-    
     x_train, y_train = create_dataset(["seg_train/sea", "seg_train/buildings",
                "seg_train/street", "seg_train/forest", "seg_train/mountain"])
     x_test, y_test = create_dataset(["seg_test/sea", "seg_test/buildings",
                "seg_test/street", "seg_test/forest", "seg_test/mountain"])
-    save_dataset(x_train, y_train, x_test, y_test)
 
     return tensor(x_train).to(device), tensor(y_train).to(device), tensor(x_test).to(device), tensor(y_test).to(device)
 
@@ -64,17 +60,3 @@ def create_dataset(paths):
     #print("ySize: ", ydata.shape)
     
     return xdata, ydata                # возвращаем 2 тензора
-
-def save_dataset(xdata, ydata, xtest, ytest):
-    xdata.tofile("bindata/xdata.bin")
-    ydata.tofile("bindata/ydata.bin")
-    xtest.tofile("bindata/xtest.bin")
-    ytest.tofile("bindata/ytest.bin")
-    
-
-def load_dataset():
-    x_train = np.fromfile("bindata/xdata.bin",  dtype=np.float64)
-    y_train = np.fromfile("bindata/ydata.bin",  dtype=np.float64)
-    x_test = np.fromfile("bindata/xtest.bin",  dtype=np.float64)
-    y_test = np.fromfile("bindata/ytest.bin",  dtype=np.float64)
-    return tensor(x_train).to(device), tensor(y_train).to(device), tensor(x_test).to(device), tensor(y_test).to(device)

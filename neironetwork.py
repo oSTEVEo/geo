@@ -8,17 +8,17 @@ import torch.nn.init
 
 device = torch.device("cuda")
 
+
 class CNN(torch.nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
-        
+
         # L1 ImgIn shape=(?, 128 , 1)
         self.layer1 = torch.nn.Sequential(
             torch.nn.Conv2d(3, 9, kernel_size=3, stride=1, padding=1),
             torch.nn.ReLU(),
-            torch.nn.MaxPool2d(kernel_size=2, stride=2),
-            torch.nn.Dropout(p=1 - keep_prob)).to(device)
-        
+            torch.nn.MaxPool2d(kernel_size=2, stride=2)).to(device)
+
         # L2 ImgIn shape=(?, 14, 14, 32)
         # Conv      ->(?, 14, 14, 64)
         # Pool      ->(?, 7, 7, 64)
@@ -27,7 +27,7 @@ class CNN(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2),
             torch.nn.Dropout(p=1 - keep_prob))
-        
+
         # L3 ImgIn shape=(?, 7, 7, 64)
         # Conv ->(?, 7, 7, 128)
         # Pool ->(?, 4, 4, 128)
@@ -44,7 +44,7 @@ class CNN(torch.nn.Module):
             self.fc1,
             torch.nn.ReLU(),
             torch.nn.Dropout(p=1 - keep_prob))
-        
+
         # L5 Final FC 625 inputs -> 10 outputs
         self.fc2 = torch.nn.Linear(625, 10, bias=True)
         torch.nn.init.xavier_uniform_(self.fc2.weight)  # initialize parameters
@@ -57,7 +57,8 @@ class CNN(torch.nn.Module):
         out = self.fc1(out)
         out = self.fc2(out)
         return out
-    
+
+
 class AwesomeModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -94,6 +95,42 @@ class AwesomeModel(torch.nn.Module):
 
 
 class MyModel(torch.nn.Module):
+    # stride - размер шага
+    #
     def __init__(self):
         super().__init__()
-        #(150, 150, 1) -> #
+
+        # (150, 150, 1) -> (хз, хз, 16)
+        self.layer1 = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 16, 3, stride=1, padding=0),
+            torch.nn.LeakyReLU(0.2),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2)
+        ).to(device)
+
+        self.layer2 = torch.nn.Sequential(
+            torch.nn.Conv2d(16, 32, 3, stride=1, padding=0),
+            torch.nn.LeakyReLU(0.2),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2)
+        ).to(device)
+
+        self.layer3 = torch.nn.Sequential(
+            torch.nn.Conv2d(32, 33, 3, stride=1, padding=0),
+            torch.nn.LeakyReLU(0.2),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            torch.nn.Flatten()
+        ).to(device)
+
+        self.layer4 = torch.nn.Linear(33 * 289, 5, bias=True).to(device)
+
+    def forward(self, x):
+        print(x.shape)
+        out = self.layer1(x)
+        print(out.shape)
+        out = self.layer2(out)
+        print(out.shape)
+        out = self.layer3(out)
+        print(out.shape)
+        out = self.layer4(out)
+        print(out.shape)
+
+        return out
