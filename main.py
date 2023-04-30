@@ -18,7 +18,7 @@ device = torch.device("cuda")
 x_train, y_train, x_test, y_test = mkdataset.init_dataset()
 
 n_epochs = 50
-eta = 0.001
+eta = 0.03
 criterion = torch.nn.CrossEntropyLoss()
 model = neironetwork.MyModel().to(device)
 optimizer = optim.SGD(model.parameters(), lr=eta)
@@ -29,12 +29,10 @@ for epoch in range(n_epochs):
     correct_answers_train = 0
     correct_answers_test = 0
 
-    optimizer.zero_grad()
+    
     for batch_idx in tqdm(range(x_train.shape[0] // batch_size)):
-        x_i = x_train[batch_size * batch_idx : batch_size * (batch_idx + 1)]\
-            .type(torch.float64).to(device)
-        y_i = y_train[batch_size * batch_idx : batch_size * (batch_idx + 1)]\
-            .type(torch.float64).to(device)
+        x_i = x_train[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
+        y_i = y_train[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
 
         x_i = x_i.reshape(x_i.size()[0], 1, x_i.size()[1], x_i.size()[2])
 
@@ -43,15 +41,14 @@ for epoch in range(n_epochs):
         loss = criterion(y_hat, y_i).to(device)
         for a, b in zip(y_hat.argmax(dim=1), y_i.argmax(dim=1)):
             correct_answers_train += int(a == b)
-        loss.backward()
         
-    optimizer.step()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
     
     for batch_idx in range(x_test.shape[0] // batch_size):
-        x_i = x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)]\
-            .type(torch.float64).to(device)
-        y_i = y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)]\
-            .type(torch.float64).to(device)
+        x_i = x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
+        y_i = y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
 
         x_i = x_i.reshape(x_i.size()[0], 1, x_i.size()[1], x_i.size()[2])
 

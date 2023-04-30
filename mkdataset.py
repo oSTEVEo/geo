@@ -13,8 +13,11 @@ def init_dataset():
                "seg_train/street", "seg_train/forest", "seg_train/mountain"])
     x_test, y_test = create_dataset(["seg_test/sea", "seg_test/buildings",
                "seg_test/street", "seg_test/forest", "seg_test/mountain"])
-
-    return tensor(x_train).to(device), tensor(y_train).to(device), tensor(x_test).to(device), tensor(y_test).to(device)
+    
+    def F(data):
+        return tensor(data ,device=device)
+    
+    return map(F, (x_train, y_train, x_test, y_test))
 
 def Get_Filtered_Image(path):
     # cv2 needed
@@ -29,6 +32,11 @@ def Get_Filtered_Image(path):
     sobel = cv2.addWeighted(filtered_image_x, 0.5, filtered_image_y, 0.5, 0)
     return sobel
 
+def get_image(path):
+    image_original = cv2.imread(path, cv2.IMREAD_COLOR)
+    image_gray = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
+    return image_gray / 255
+    
 
 def create_dataset(paths):
     def to_categorical(y, num_classes):
@@ -38,7 +46,7 @@ def create_dataset(paths):
     for i in range(len(paths)):        # Бежим по массиву каталогов 
         listdir = os.listdir(paths[i]) 
         for j in range(len(listdir)):
-            listdir[j] = [Get_Filtered_Image(paths[i]+'/'+listdir[j]), i]    # Здесь конвертируются файлы и соединяются с номером их типа
+            listdir[j] = [get_image(paths[i]+'/'+listdir[j]), i]    # Здесь конвертируются файлы и соединяются с номером их типа
         dataset += listdir
     
     xdata = [0] * len(dataset) 
@@ -49,14 +57,8 @@ def create_dataset(paths):
         xdata[i] = dataset[i][0]
         ydata[i] = dataset[i][1]
     
-    xdata = np.array(xdata, dtype=np.float64)
+    xdata = np.array(xdata)
     ydata = to_categorical(ydata, 5)   # np.eye()
     
-    # save xdata and ydata to binary file
-    
-    
-    print("Pats: ", paths)
-    #print("xSize: ", xdata.shape)
-    #print("ySize: ", ydata.shape)
     
     return xdata, ydata                # возвращаем 2 тензора
