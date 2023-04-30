@@ -10,6 +10,7 @@ from torch import nn
 device = torch.device("cuda")
 
 class MyModel(nn.Module):
+    # Epoch: 6, Train acc: 0.46349, Test acc: 0.46277
     def __init__(self):
         super().__init__()
         keep_prob = 0.5
