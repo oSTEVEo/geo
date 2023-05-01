@@ -10,27 +10,27 @@ from torch import nn
 device = torch.device("cuda")
 
 class MyModel(nn.Module):
-    # Epoch: 6, Train acc: 0.46349, Test acc: 0.46277
+    # Epoch: 25, Train acc: 0.65782, Test acc: 0.61457
     def __init__(self):
         super().__init__()
-        keep_prob = 0.5
+        keep_prob = 0.25
         self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 16, 3, stride=1, padding=0),
-            nn.LeakyReLU(0.2),
+            nn.Conv2d(3, 16, 3, stride=1, padding=0),
+            nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(keep_prob)
         )
 
         self.layer2 = nn.Sequential(
             nn.Conv2d(16, 32, 3, stride=1, padding=0),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(keep_prob)
         )
 
         self.layer3 = nn.Sequential(
             nn.Conv2d(32, 64, 3, stride=1, padding=0),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(keep_prob),
         ) 

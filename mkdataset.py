@@ -15,9 +15,9 @@ def init_dataset():
                "seg_test/street", "seg_test/forest", "seg_test/mountain"])
     
     def F(data):
-        return tensor(data ,device=device)
+        return tensor(data, device=device)
     
-    return map(F, (x_train, y_train, x_test, y_test))
+    return x_train, y_train, x_test, y_test
 
 def Get_Filtered_Image(path):
     # cv2 needed
@@ -34,8 +34,8 @@ def Get_Filtered_Image(path):
 
 def get_image(path):
     image_original = cv2.imread(path, cv2.IMREAD_COLOR)
-    image_gray = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
-    return image_gray / 255
+    #image_gray = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
+    return image_original / 255
     
 
 def create_dataset(paths):

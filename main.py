@@ -31,10 +31,10 @@ for epoch in range(n_epochs):
 
     
     for batch_idx in tqdm(range(x_train.shape[0] // batch_size)):
-        x_i = x_train[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
-        y_i = y_train[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
+        x_i = torch.tensor(x_train[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
+        y_i = torch.tensor(y_train[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
 
-        x_i = x_i.reshape(x_i.size()[0], 1, x_i.size()[1], x_i.size()[2])
+        x_i = x_i.reshape(x_i.size()[0], 3, x_i.size()[1], x_i.size()[2])
 
         y_hat = model(x_i)
 
@@ -47,10 +47,10 @@ for epoch in range(n_epochs):
         optimizer.step()
     
     for batch_idx in range(x_test.shape[0] // batch_size):
-        x_i = x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
-        y_i = y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)].to(device)
+        x_i = torch.tensor(x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
+        y_i = torch.tensor(y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
 
-        x_i = x_i.reshape(x_i.size()[0], 1, x_i.size()[1], x_i.size()[2])
+        x_i = x_i.reshape(x_i.size()[0], 3, x_i.size()[1], x_i.size()[2])
 
         with torch.no_grad():
             y_hat = model(x_i)
