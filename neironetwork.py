@@ -10,46 +10,37 @@ from torch import nn
 device = torch.device("cuda")
 
 class MyModel(nn.Module):
-    # Epoch: 25, Train acc: 0.65782, Test acc: 0.61457
+    # Epoch: 25, Train acc: 0.99422, Test acc: 0.74345
     def __init__(self):
         super().__init__()
         keep_prob = 0.25
         self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 16, 3, stride=1, padding=0),
+            nn.Conv2d(1, 16, 3, stride=1, padding=0),
             nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(keep_prob)
-        )
-
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, 3, stride=1, padding=0),
-            nn.LeakyReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(keep_prob)
-        )
+        ).to(device)
 
         self.layer3 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, stride=1, padding=0),
+            nn.Linear(87616, 1000, bias=True),
             nn.LeakyReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(keep_prob),
-        ) 
+            nn.Dropout(keep_prob)
+        ).to(device)
 
         self.layer4 = nn.Sequential(
-            nn.Linear(18496, 100, bias=True),
+            nn.Linear(1000, 100, bias=True),
+            nn.LeakyReLU(),
             nn.Dropout(keep_prob)
-        )
+        ).to(device)
         
         self.layer5 = nn.Sequential(
             nn.Linear(100, 5, bias=True),
-            nn.Dropout(keep_prob)
-        )
+        ).to(device)
 
     def forward(self, x):
         out = self.layer1(x)
-        out = self.layer2(out)
-        out = self.layer3(out)
         out = out.view(out.size(0), -1)
+        out = self.layer3(out)
         out = self.layer4(out)
         out = self.layer5(out)
 

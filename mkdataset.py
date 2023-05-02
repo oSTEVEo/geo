@@ -34,8 +34,8 @@ def Get_Filtered_Image(path):
 
 def get_image(path):
     image_original = cv2.imread(path, cv2.IMREAD_COLOR)
-    #image_gray = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
-    return image_original / 255
+    image_gray = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
+    return image_gray / 255
     
 
 def create_dataset(paths):
