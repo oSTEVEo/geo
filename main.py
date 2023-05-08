@@ -18,7 +18,7 @@ device = torch.device("cuda")
 x_train, y_train, x_test, y_test = mkdataset.init_dataset()
 
 n_epochs = 50
-eta = 0.03
+eta = 0.005
 criterion = torch.nn.CrossEntropyLoss()
 model = neironetwork.MyModel().to(device)
 optimizer = optim.SGD(model.parameters(), lr=eta)
