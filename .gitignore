@@ -135,3 +135,5 @@ seg_pred/
 
 # binary data, will be generated in first launch
 bindata/* 
+
+test.py
