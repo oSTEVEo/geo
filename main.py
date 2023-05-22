@@ -24,7 +24,7 @@ n_epochs = 50
 eta = 0.005
 criterion = torch.nn.CrossEntropyLoss()
 model = neironetwork.MyModel().to(device)
-optimizer = optim.SGD(model.parameters(), lr=eta)
+optimizer = optim.SGD(model.parameters(), lr=eta, weight_decay=0.001)
 
 batch_size = 64
 
