@@ -13,6 +13,9 @@ import torch.nn.functional as F
 import mkdataset
 import neironetwork
 
+
+default_dtype = torch.float64
+torch.set_default_dtype(default_dtype)
 device = torch.device("cuda")
 
 x_train, y_train, x_test, y_test = mkdataset.init_dataset()
@@ -31,14 +34,14 @@ for epoch in range(n_epochs):
 
     
     for batch_idx in tqdm(range(x_train.shape[0] // batch_size)):
-        x_i = torch.tensor(x_train[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
-        y_i = torch.tensor(y_train[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
+        x_i = torch.tensor(x_train[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device, dtype=default_dtype)
+        y_i = torch.tensor(y_train[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device, dtype=default_dtype)
 
-        x_i = x_i.reshape(x_i.shape[0], 1, x_i.shape[1], x_i.shape[2])
+        x_i = x_i.reshape(x_i.shape[0], 3, x_i.shape[1], x_i.shape[2])
 
         y_hat = model(x_i)
 
-        loss = criterion(y_hat, y_i).to(device)
+        loss = criterion(y_hat, y_i).to(device) * 3
         for a, b in zip(y_hat.argmax(dim=1), y_i.argmax(dim=1)):
             correct_answers_train += int(a == b)
         
@@ -47,10 +50,10 @@ for epoch in range(n_epochs):
         optimizer.step()
     
     for batch_idx in range(x_test.shape[0] // batch_size):
-        x_i = torch.tensor(x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
-        y_i = torch.tensor(y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device)
+        x_i = torch.tensor(x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device, dtype=default_dtype)
+        y_i = torch.tensor(y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device, dtype=default_dtype)
 
-        x_i = x_i.reshape(x_i.shape[0], 1, x_i.shape[1], x_i.shape[2])
+        x_i = x_i.reshape(x_i.shape[0], 3, x_i.shape[1], x_i.shape[2])
 
         with torch.no_grad():
             y_hat = model(x_i)

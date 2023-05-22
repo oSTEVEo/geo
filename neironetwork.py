@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 import torch.nn.init
 from torch import nn
 
+torch.set_default_dtype(torch.float64)
 device = torch.device("cuda")
 
 class MyModel(nn.Module):
@@ -15,7 +16,7 @@ class MyModel(nn.Module):
         super().__init__()
         keep_prob = 0.5
         self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 16, 5, stride=1, padding=0),
+            nn.Conv2d(3, 16, 5, stride=1, padding=0),
             nn.BatchNorm2d(16),
             nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
