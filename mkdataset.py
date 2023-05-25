@@ -4,15 +4,24 @@ import os
 import torch
 from torch import tensor, randn
 import cv2
+import random
+import albumentations as A
+
 
 torch.set_default_dtype(torch.float64)
 device = torch.device("cuda")
 
-def init_dataset():
+transform = A.Compose([
+    A.RandomRotate90(),
+    A.CLAHE(),
+])
+
+
+def get_dataset(alb=1): # alb - случайное изменение картинок, по умолчанию 1
     x_train, y_train = create_dataset(["seg_train/sea", "seg_train/buildings",
                "seg_train/street", "seg_train/forest", "seg_train/mountain"])
     x_test, y_test = create_dataset(["seg_test/sea", "seg_test/buildings",
-               "seg_test/street", "seg_test/forest", "seg_test/mountain"])
+               "seg_test/street", "seg_test/forest", "seg_test/mountain"], alb=0)
         
     def F(data):
         return tensor(data, device=device)
@@ -33,12 +42,13 @@ def Get_Filtered_Image(path):
     return sobel
 
 def get_image(path):
-    image_original = cv2.imread(path, cv2.IMREAD_COLOR)
-    #image_gray = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
-    return image_original / 255
+    image = cv2.imread(path, cv2.IMREAD_COLOR)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    #image_gray    = cv2.cvtColor(image_original, cv2.COLOR_BGR2GRAY)
+    return image
     
 
-def create_dataset(paths):
+def create_dataset(paths, alb=1):
     def to_categorical(y, num_classes):
         return np.eye(num_classes)[y]
     
@@ -46,7 +56,11 @@ def create_dataset(paths):
     for i in range(len(paths)):        # Бежим по массиву каталогов 
         listdir = os.listdir(paths[i]) 
         for j in range(len(listdir)):
-            listdir[j] = [get_image(paths[i]+'/'+listdir[j]), i]    # Здесь конвертируются файлы и соединяются с номером их типа
+            image = get_image(paths[i]+'/'+listdir[j]) # Читаем, закидываем в массив
+            if alb:
+                image = transform(image=image)['image']
+            listdir[j] = [image / 255, i]    # Здесь соединяются с номером их типа
+            
         dataset += listdir
     
     xdata = [0] * len(dataset) 

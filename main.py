@@ -10,6 +10,8 @@ from torch import optim, nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 
+import gc
+
 import mkdataset
 import neironetwork
 
@@ -18,7 +20,8 @@ default_dtype = torch.float64
 torch.set_default_dtype(default_dtype)
 device = torch.device("cuda")
 
-x_train, y_train, x_test, y_test = mkdataset.init_dataset()
+x_train, y_train, x_test, y_test = mkdataset.get_dataset()
+x_test_len = x_test.shape[0]
 
 n_epochs = 50
 eta = 0.005
@@ -49,6 +52,11 @@ for epoch in range(n_epochs):
         loss.backward()
         optimizer.step()
     
+    
+    x_train_len = x_train.shape[0]   
+    del x_train, y_train
+    gc.collect()
+    
     for batch_idx in range(x_test.shape[0] // batch_size):
         x_i = torch.tensor(x_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device, dtype=default_dtype)
         y_i = torch.tensor(y_test[batch_size * batch_idx : batch_size * (batch_idx + 1)], device=device, dtype=default_dtype)
@@ -60,9 +68,11 @@ for epoch in range(n_epochs):
 
         for a, b in zip(y_hat.argmax(dim=1), y_i.argmax(dim=1)):
             correct_answers_test += int(a == b)
-
-    train_acc = correct_answers_train / x_train.shape[0]
+    
+    train_acc = correct_answers_train / x_train_len
     test_acc = correct_answers_test / x_test.shape[0]
 
-    print(
-        f'Epoch: {epoch + 1}, Train acc: {train_acc:.5f}, Test acc: {test_acc:.5f}')
+    print(f'Epoch: {epoch + 1}, Train acc: {train_acc:.5f}, Test acc: {test_acc:.5f}')
+    
+    x_train, y_train = mkdataset.create_dataset(["seg_train/sea", "seg_train/buildings",
+               "seg_train/street", "seg_train/forest", "seg_train/mountain"])
